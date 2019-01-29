@@ -3,8 +3,9 @@
   "name": "calculator",
   "version": "0.0.1",
   "scripts": {
-    "dev": "./node_modules/.bin/parcel ./src/index.html --no-hmr",
-    "build": "rm -rf ./dist ./.cache && ./node_modules/.bin/parcel build ./src/index.html -d ./dist --public-url ./"
+    "clean": "rm -rf ./dist ./.cache",
+    "dev": "npm run clean &&./node_modules/.bin/parcel ./src/index.html --no-hmr",
+    "build": "npm run clean && ./node_modules/.bin/parcel build ./src/index.html -d ./dist --public-url ./"
   },
   "browserslist": [
     "last 2 android versions"
