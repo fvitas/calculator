@@ -1,11 +1,13 @@
 {
   "private": false,
-  "name": "calculator",
+  "name": "calculator-pwa",
   "version": "0.0.1",
   "scripts": {
     "clean": "rm -rf ./dist ./.cache",
-    "dev": "npm run clean &&./node_modules/.bin/parcel ./src/index.html --no-hmr",
-    "build": "npm run clean && ./node_modules/.bin/parcel build ./src/index.html -d ./dist --public-url ./"
+    "dev": "npm run clean && npx parcel ./src/index.html --no-hmr && npx workbox injectManifest",
+    "build": "npm run clean && npx parcel build ./src/index.html -d ./dist --public-url ./ &&  npx workbox injectManifest",
+    "now-build": "NODE_ENV=production npm run build",
+    "deploy": "now"
   },
   "browserslist": [
     "last 2 android versions"
@@ -18,8 +20,10 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "7.0.0",
     "autoprefixer": "^9.4.6",
+    "now": "^13.1.2",
     "postcss-modules": "1.4.1",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "workbox-cli": "^4.0.0-beta.2"
   },
   "dependencies": {
     "parcel-bundler": "1.11.0",
