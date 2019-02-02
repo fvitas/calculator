@@ -1,6 +1,6 @@
 .github
 LICENSE
 README.md
-bin
+dist
 node_modules
 docs
