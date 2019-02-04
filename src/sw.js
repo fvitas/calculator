@@ -37,3 +37,8 @@ workbox.routing.registerRoute(
         ]
     })
 )
+
+workbox.routing.registerRoute(
+    /.*\.woff2/,
+    workbox.strategies.cacheFirst()
+)

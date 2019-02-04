@@ -1,6 +1,7 @@
-import './style/index.styl'
+import './assets/index.styl'
 import { h, render } from 'preact'
 import { App } from './components/app'
+import './assets/fonts/font.styl'
 
 render(<App/>, document.querySelector('#app'))
 
