@@ -1,8 +1,8 @@
-import './style/index.css'
+import './style/index.styl'
 import { h, render } from 'preact'
-import App from './components/app'
+import { App } from './components/app'
 
-render(<App />, document.querySelector('#app'))
+render(<App/>, document.querySelector('#app'))
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load',
