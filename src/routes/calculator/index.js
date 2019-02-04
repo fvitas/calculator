@@ -37,6 +37,11 @@ export class Calculator extends Component {
     }
 
     executeOperation (calculation, value) {
+
+        if (calculation.trim().length < 2 && ['+', '×', '÷'].includes(value) ) {
+            return
+        }
+
         calculation = calculation.trim()
         let lastItem = calculation[calculation.length - 1]
 
@@ -98,7 +103,13 @@ export class Calculator extends Component {
             return eval(adaptedCalculation) + ''
 
         } catch (o_O) {
-            return eval(adaptedCalculation.trim().slice(0, -1).trim()) + ''
+
+            adaptedCalculation = eval(adaptedCalculation.trim().slice(0, -1).trim())
+
+            if (!adaptedCalculation)
+                return ''
+            else
+                return adaptedCalculation
         }
     }
 
