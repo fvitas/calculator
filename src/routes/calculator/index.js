@@ -2,7 +2,8 @@ import { h, Component } from 'preact'
 import style from './calculator.styl'
 import { Delete } from '../../components/icons/IconDelete'
 
-const OPERATIONS = ['+', '−', '×', '÷']
+const PLUS = '+', MINUS = '−', TIMES = '×', DIVIDE = '÷'
+const OPERATIONS = [PLUS, MINUS, TIMES, DIVIDE]
 const ACTIONS = ['C', '=', 'delete']
 
 export class Calculator extends Component {
@@ -36,20 +37,23 @@ export class Calculator extends Component {
         })
     }
 
+    isInvalidCalculationStart (calculation, value) {
+        return (!calculation && [PLUS, TIMES, DIVIDE].includes(value)) || (calculation === MINUS && OPERATIONS.includes(value))
+    }
+
     executeOperation (calculation, value) {
 
-        if (calculation.trim().length < 2 && ['+', '×', '÷'].includes(value) ) {
+        if (this.isInvalidCalculationStart(calculation, value)) {
             return
         }
 
-        calculation = calculation.trim()
         let lastItem = calculation[calculation.length - 1]
 
         let newCalculation = OPERATIONS.includes(lastItem)
             ? calculation.slice(0, -1)
             : calculation
 
-        this.setState({ calculationExpression: `${newCalculation} ${value} ` })
+        this.setState({ calculationExpression: newCalculation + value })
     }
 
     executeAction (calculation, action) {
@@ -68,7 +72,7 @@ export class Calculator extends Component {
         }
 
         if (action === 'delete') {
-            let newCalculation = calculation.trim().slice(0, -1).trim()
+            let newCalculation = calculation.slice(0, -1)
 
             this.setState({
                 calculationExpression: newCalculation,
@@ -82,9 +86,9 @@ export class Calculator extends Component {
             return ''
         }
 
-        let adaptedCalculation = calculation.replace(/−/g, '-')
-                                            .replace(/×/g, '*')
-                                            .replace(/÷/g, '/')
+        let adaptedCalculation = calculation.replace(new RegExp(MINUS, 'g'), '-')
+                                            .replace(new RegExp(TIMES, 'g'), '*')
+                                            .replace(new RegExp(DIVIDE, 'g'), '/')
         try {
             adaptedCalculation = adaptedCalculation.split(' ')
                                                    .reduce((evaluation, item, index) => {
@@ -104,7 +108,7 @@ export class Calculator extends Component {
 
         } catch (o_O) {
 
-            adaptedCalculation = eval(adaptedCalculation.trim().slice(0, -1).trim())
+            adaptedCalculation = eval(adaptedCalculation.slice(0, -1))
 
             if (!adaptedCalculation)
                 return ''
@@ -113,13 +117,37 @@ export class Calculator extends Component {
         }
     }
 
+    formatCalculation (calculation) {
+
+        if (!calculation)
+            return ''
+
+        let newCalculation = calculation.replace(new RegExp('\\' + PLUS, 'g'), ` ${PLUS} `)
+                                        .replace(new RegExp(MINUS, 'g'), ` ${MINUS} `)
+                                        .replace(new RegExp(TIMES, 'g'), ` ${TIMES} `)
+                                        .replace(new RegExp(DIVIDE, 'g'), ` ${DIVIDE} `)
+
+        return newCalculation.split(' ')
+                             .filter(item => !!item)
+                             .map(item => {
+                                 if (OPERATIONS.includes(item)) {
+                                     return item
+                                 } else {
+                                     let number = parseFloat(item).toLocaleString('en-US')
+
+                                     return item.endsWith('.') ? number + '.' : number
+                                 }
+                             })
+                             .join(' ')
+    }
+
     render (props, state) {
         return (
             <div className={style.calculator}>
                 <div className={style.buttons} onClick={this.onButtonClick}>
                     <div className={style.button}>C</div>
-                    <div className={style.button}>÷</div>
-                    <div className={style.button}>×</div>
+                    <div className={style.button}>{DIVIDE}</div>
+                    <div className={style.button}>{TIMES}</div>
                     <div className={style.button}>
                         <Delete/>
                     </div>
@@ -127,12 +155,12 @@ export class Calculator extends Component {
                     <div className={style.button}>7</div>
                     <div className={style.button}>8</div>
                     <div className={style.button}>9</div>
-                    <div className={style.button}>−</div>
+                    <div className={style.button}>{MINUS}</div>
 
                     <div className={style.button}>4</div>
                     <div className={style.button}>5</div>
                     <div className={style.button}>6</div>
-                    <div className={style.button}>+</div>
+                    <div className={style.button}>{PLUS}</div>
 
                     <div className={style.button}>1</div>
                     <div className={style.button}>2</div>
@@ -147,7 +175,7 @@ export class Calculator extends Component {
 
                 <div className={style.result}>{state.calculationResult}</div>
 
-                <div className={style.live}>{state.calculationExpression}</div>
+                <div className={style.live}>{this.formatCalculation(state.calculationExpression)}</div>
             </div>
         )
     }
