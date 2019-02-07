@@ -26,6 +26,7 @@
     "workbox-cli": "3.6.3"
   },
   "dependencies": {
+    "mathjs": "5.4.2",
     "preact": "8.4.2",
     "preact-router": "2.6.1"
   },

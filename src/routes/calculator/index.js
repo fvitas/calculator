@@ -1,6 +1,7 @@
 import { h, Component } from 'preact'
 import style from './calculator.styl'
 import { Delete } from '../../components/icons/IconDelete'
+import math from 'mathjs'
 
 const PLUS = '+', MINUS = '−', TIMES = '×', DIVIDE = '÷'
 const OPERATIONS = [PLUS, MINUS, TIMES, DIVIDE]
@@ -18,47 +19,28 @@ export class Calculator extends Component {
         let { calculationExpression } = this.state
         let value = event.target.textContent
 
-        if (OPERATIONS.includes(value)) {
-            this.executeOperation(calculationExpression, value)
-            return
-        }
         if (ACTIONS.includes(value)) {
             this.executeAction(calculationExpression, value)
             return
         }
 
-        this.executeNumber(calculationExpression, value)
+        this.appendValue(calculationExpression, value)
     }
 
-    executeNumber (calculation, value) {
+    appendValue (calculation, value) {
+
+        let newCalculation = calculation + value
+
         this.setState({
-            calculationExpression: calculation + value,
-            calculationResult: this.evaluateCalculation(calculation + value)
+            calculationExpression: newCalculation,
+            calculationResult: this.evaluateCalculation(newCalculation)
         })
-    }
-
-    isInvalidCalculationStart (calculation, value) {
-        return (!calculation && [PLUS, TIMES, DIVIDE].includes(value)) || (calculation === MINUS && OPERATIONS.includes(value))
-    }
-
-    executeOperation (calculation, value) {
-
-        if (this.isInvalidCalculationStart(calculation, value)) {
-            return
-        }
-
-        let lastItem = calculation[calculation.length - 1]
-
-        let newCalculation = OPERATIONS.includes(lastItem)
-            ? calculation.slice(0, -1)
-            : calculation
-
-        this.setState({ calculationExpression: newCalculation + value })
     }
 
     executeAction (calculation, action) {
         if (action === 'C') {
             this.setState({ calculationExpression: '', calculationResult: '' })
+            return
         }
 
         if (action === '=') {
@@ -69,6 +51,7 @@ export class Calculator extends Component {
                 calculationResult: '',
                 history: [ ...history, calculationResult ]
             })
+            return
         }
 
         if (action === 'delete') {
@@ -81,42 +64,34 @@ export class Calculator extends Component {
         }
     }
 
+    /**.
+     * @param {string} calculation
+     * @return {string}
+     */
     evaluateCalculation (calculation) {
-        if (!calculation) {
+
+        // TODO filipv: implement percentage
+
+        if (!calculation)
             return ''
-        }
 
-        let adaptedCalculation = calculation.replace(new RegExp(MINUS, 'g'), '-')
-                                            .replace(new RegExp(TIMES, 'g'), '*')
-                                            .replace(new RegExp(DIVIDE, 'g'), '/')
         try {
-            adaptedCalculation = adaptedCalculation.split(' ')
-                                                   .reduce((evaluation, item, index) => {
-                                                       if (item.includes('%')) {
-                                                           if (index === 0) {
-                                                               return +item.slice(0, -1) / 100
-                                                           } else {
-                                                               let tempEval = evaluation.trim().slice(0, -1).trim()
-                                                               return evaluation + eval(tempEval) / 100 * +item.slice(0, -1)
-                                                           }
-                                                       } else {
-                                                           return evaluation + item
-                                                       }
-                                                   }, '')
+            calculation = calculation.replace(new RegExp('\\' + PLUS, 'g'), '+')
+                                     .replace(new RegExp(MINUS, 'g'), '-')
+                                     .replace(new RegExp(TIMES, 'g'), '*')
+                                     .replace(new RegExp(DIVIDE, 'g'), '/')
 
-            return eval(adaptedCalculation) + ''
+            return math.round(math.eval(calculation), 12).toString()
 
-        } catch (o_O) {
-
-            adaptedCalculation = eval(adaptedCalculation.slice(0, -1))
-
-            if (!adaptedCalculation)
-                return ''
-            else
-                return adaptedCalculation
+        } catch (_) {
+            return this.state.calculationResult
         }
     }
 
+    /**.
+     * @param {string} calculation
+     * @return {string}
+     */
     formatCalculation (calculation) {
 
         if (!calculation)
@@ -133,9 +108,15 @@ export class Calculator extends Component {
                                  if (OPERATIONS.includes(item)) {
                                      return item
                                  } else {
-                                     let number = parseFloat(item).toLocaleString('en-US')
+                                     if (item.startsWith('.') || item.endsWith('.'))
+                                         return item
 
-                                     return item.endsWith('.') ? number + '.' : number
+                                     let number = parseFloat(item)
+
+                                     if (!Number.isNaN(number))
+                                         return number.toLocaleString('en-US', { maximumFractionDigits: 10 })
+                                     else
+                                         return item
                                  }
                              })
                              .join(' ')
@@ -173,7 +154,7 @@ export class Calculator extends Component {
                     <div className={style.button}>.</div>
                 </div>
 
-                <div className={style.result}>{state.calculationResult}</div>
+                <div className={style.result}>{this.formatCalculation(state.calculationResult)}</div>
 
                 <div className={style.live}>{this.formatCalculation(state.calculationExpression)}</div>
             </div>
