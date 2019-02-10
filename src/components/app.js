@@ -2,8 +2,8 @@ import { h, Component } from 'preact'
 import { Router } from 'preact-router'
 
 import { Header } from './header'
-import { Profile } from '../routes/profile'
 import { Calculator } from '../routes/calculator'
+import { CurrencyConverter } from '../routes/currency/converter'
 
 export class App extends Component {
 
@@ -17,8 +17,7 @@ export class App extends Component {
 				<Header />
 				<Router onChange={this.handleRoute}>
 					<Calculator path="/"/>
-					<Profile path="/profile/" user="me" />
-					<Profile path="/profile/:user" />
+					<CurrencyConverter path="/currency" />
 				</Router>
 			</div>
 		)

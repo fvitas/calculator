@@ -6,8 +6,7 @@ export const Header = () => (
 	<header className={style.header}>
 		<nav>
 			<Link activeClassName={style.active} href='/'>Calculator</Link>
-			<Link activeClassName={style.active} href='/profile'>Me</Link>
-			<Link activeClassName={style.active} href='/profile/john'>John</Link>
+			<Link activeClassName={style.active} href='/currency'>Currency</Link>
 		</nav>
 	</header>
 )
