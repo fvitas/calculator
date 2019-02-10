@@ -70,7 +70,9 @@ export class Calculator extends Component {
      */
     evaluateCalculation (calculation) {
 
-        // TODO filipv: implement percentage
+        // todo: reverse engineer google calc
+        // add reverse polish notation
+        // remove mathjs
 
         if (!calculation)
             return ''
